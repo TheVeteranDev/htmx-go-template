@@ -4,9 +4,9 @@ import (
 	"strings"
 
 	"github.com/theveterandev/htmx-go-template/database"
-	"github.com/theveterandev/htmx-go-template/src/jwt"
-	"github.com/theveterandev/htmx-go-template/src/models"
-	utils "github.com/theveterandev/htmx-go-template/src/utilities"
+	"github.com/theveterandev/htmx-go-template/jwt"
+	"github.com/theveterandev/htmx-go-template/models"
+	utils "github.com/theveterandev/htmx-go-template/utilities"
 )
 
 type UserService struct {

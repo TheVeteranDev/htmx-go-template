@@ -4,15 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <title>HTMX Go Template</title>
-    <link rel="stylesheet" href="index.css">
+    <!-- <link rel="stylesheet" href="index.css"> -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css">
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const token = sessionStorage.getItem('token');
+            htmx.ajax("GET", token ? "/homepage" : "/sign-in", {
+                target: "#body",
+                swap: "innerHTML",
+            })
+
+        });
+    </script>
+
 </head>
 
 <body>
-    <section hx-get="/navbar" hx-swap="innerHTML" hx-trigger="load"></section>
-
-    <h1 class="title is-1">Hello, world!</h1>
+    <div id="body"></div>
 </body>
 
 </html>

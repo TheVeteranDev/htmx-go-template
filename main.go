@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/theveterandev/htmx-go-template/controllers"
 	"github.com/theveterandev/htmx-go-template/database"
-	"github.com/theveterandev/htmx-go-template/src/controllers"
-	utils "github.com/theveterandev/htmx-go-template/src/utilities"
+	utils "github.com/theveterandev/htmx-go-template/utilities"
 )
 
 func main() {

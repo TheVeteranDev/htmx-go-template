@@ -1,0 +1,20 @@
+<section hx-get="/navbar" hx-trigger="load" hx-swap="outerHTML"></section>
+
+<section class="container">
+    <div class="columns">
+        <div class="column is-12">
+            <h1 class="title is-1">Hello {{.username}}</h1>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener("htmx:afterRequest", function (event) {
+        if (event.detail.pathInfo.requestPath === "/oauth/v1/signIn") {
+            const token = "{{.token}}"
+            if (token) {
+                sessionStorage.setItem("token", token);
+            }
+        }
+    })
+</script>

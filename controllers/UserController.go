@@ -2,22 +2,24 @@ package controllers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/theveterandev/htmx-go-template/database"
-	"github.com/theveterandev/htmx-go-template/src/models"
-	"github.com/theveterandev/htmx-go-template/src/routes"
-	"github.com/theveterandev/htmx-go-template/src/services"
+	"github.com/theveterandev/htmx-go-template/models"
+	"github.com/theveterandev/htmx-go-template/routes"
+	"github.com/theveterandev/htmx-go-template/services"
 )
 
 type UserController struct {
 	s *services.UserService
+	t *services.TemplateService
 }
 
 func InitUserController(db *database.Database) routes.Routes {
 	r := routes.Routes{}
-	uc := UserController{services.InitUserService(db)}
+	uc := UserController{services.InitUserService(db), services.InitTemplateService()}
 	r[routes.Route{Path: "/oauth/v1", Method: "GET", Auth: true}] = uc.ListUsers
 	r[routes.Route{Path: "/oauth/v1/getByID/:id", Method: "GET", Auth: true}] = uc.GetUserByID
 	r[routes.Route{Path: "/oauth/v1/getByUsername/:username", Method: "GET", Auth: true}] = uc.GetUserByUsername
@@ -113,20 +115,26 @@ func (c UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c UserController) SignIn(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	u := models.User{}
-	err := json.NewDecoder(r.Body).Decode(&u)
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
-		return
-	}
+	// u := models.User{
+	// 	Username: r.FormValue("username"),
+	// 	Password: r.FormValue("password"),
+	// }
+	// err := json.NewDecoder(r.Body).Decode(&u)
+	// if err != nil {
+	// 	http.Error(w, "Error reading request body", http.StatusInternalServerError)
+	// 	return
+	// }
 
-	user, token, err := c.s.SignIn(u.Username, u.Password)
+	user, token, err := c.s.SignIn(r.FormValue("username"), r.FormValue("password"))
 	if err != nil {
 		http.Error(w, "Invalid username and/or password", http.StatusBadRequest)
 		return
 	}
-	json.NewEncoder(w).Encode(map[string]interface{}{"user": user, "token": token})
+	// json.NewEncoder(w).Encode(map[string]interface{}{"user": user, "token": token})
+
+	data := map[string]interface{}{"id": user.ID, "username": user.Username, "token": token}
+	log.Printf("Data: %v", data)
+	c.t.RenderHomepage().Execute(w, data)
 }
 
 func (c UserController) SignOut(w http.ResponseWriter, r *http.Request) {

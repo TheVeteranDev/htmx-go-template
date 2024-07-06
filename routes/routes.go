@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/theveterandev/htmx-go-template/src/jwt"
+	"github.com/theveterandev/htmx-go-template/jwt"
 )
 
 type Route struct {

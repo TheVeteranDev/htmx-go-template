@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	utils "github.com/theveterandev/htmx-go-template/src/utilities"
+	utils "github.com/theveterandev/htmx-go-template/utilities"
 )
 
 type Claim struct {

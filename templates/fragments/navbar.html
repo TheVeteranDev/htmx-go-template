@@ -22,11 +22,21 @@
         <div class="navbar-end">
             <div class="navbar-item">
                 <div class="buttons">
-                    <button class="button is-primary">
+                    <button class="button is-primary" onclick="signOut()">
                         <strong>Sign Out</strong>
                     </button>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        let signOut = () => {
+            sessionStorage.removeItem("token");
+            htmx.ajax("GET", "/sign-in", {
+                target: "#body",
+                swap: "innerHTML",
+            });
+        }
+    </script>
 </nav>
