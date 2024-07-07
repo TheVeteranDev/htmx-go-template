@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -20,11 +20,11 @@ type UserController struct {
 func InitUserController(db *database.Database) routes.Routes {
 	r := routes.Routes{}
 	uc := UserController{services.InitUserService(db), services.InitTemplateService()}
-	r[routes.Route{Path: "/oauth/v1", Method: "GET", Auth: true}] = uc.ListUsers
+	r[routes.Route{Path: "/oauth/v1/list", Method: "GET", Auth: false}] = uc.ListUsers
 	r[routes.Route{Path: "/oauth/v1/getByID/:id", Method: "GET", Auth: true}] = uc.GetUserByID
 	r[routes.Route{Path: "/oauth/v1/getByUsername/:username", Method: "GET", Auth: true}] = uc.GetUserByUsername
 	r[routes.Route{Path: "/oauth/v1/create", Method: "POST", Auth: false}] = uc.CreateUser
-	r[routes.Route{Path: "/oauth/v1/:id", Method: "DELETE", Auth: true}] = uc.DeleteUser
+	r[routes.Route{Path: "/oauth/v1/delete/:id", Method: "DELETE", Auth: false}] = uc.DeleteUser
 	r[routes.Route{Path: "/oauth/v1/signIn", Method: "POST", Auth: false}] = uc.SignIn
 	r[routes.Route{Path: "/oauth/v1/signOut", Method: "POST", Auth: false}] = uc.SignOut
 	r[routes.Route{Path: "/oauth/v1/signUp", Method: "POST", Auth: false}] = uc.SignUp
@@ -32,13 +32,18 @@ func InitUserController(db *database.Database) routes.Routes {
 }
 
 func (c UserController) ListUsers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	users, err := c.s.ListUsers()
 	if err != nil {
 		http.Error(w, "Error listing users", http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(users)
+
+	for _, u := range users {
+		id := strconv.FormatInt(u.ID, 10)
+		delete := fmt.Sprintf("/oauth/v1/delete/%s", id)
+		data := map[string]interface{}{"Message": u.Username, "Delete": delete, "ID": u.ID}
+		c.t.RenderNotification().Execute(w, data)
+	}
 }
 
 func (c UserController) GetUserByID(w http.ResponseWriter, r *http.Request) {
@@ -111,54 +116,36 @@ func (c UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error deleting user", http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusOK)
 }
 
 func (c UserController) SignIn(w http.ResponseWriter, r *http.Request) {
-	// u := models.User{
-	// 	Username: r.FormValue("username"),
-	// 	Password: r.FormValue("password"),
-	// }
-	// err := json.NewDecoder(r.Body).Decode(&u)
-	// if err != nil {
-	// 	http.Error(w, "Error reading request body", http.StatusInternalServerError)
-	// 	return
-	// }
-
-	user, token, err := c.s.SignIn(r.FormValue("username"), r.FormValue("password"))
+	user, err := c.s.SignIn(r.FormValue("username"), r.FormValue("password"))
 	if err != nil {
 		http.Error(w, "Invalid username and/or password", http.StatusBadRequest)
 		return
 	}
-	// json.NewEncoder(w).Encode(map[string]interface{}{"user": user, "token": token})
-
-	data := map[string]interface{}{"id": user.ID, "username": user.Username, "token": token}
-	log.Printf("Data: %v", data)
-	c.t.RenderHomepage().Execute(w, data)
+	c.t.RenderHomepage().Execute(w, user)
 }
 
 func (c UserController) SignOut(w http.ResponseWriter, r *http.Request) {
-	success := c.s.SignOut()
-	if !success {
-		http.Error(w, "Error signing out user", http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	c.t.RenderSignIn().Execute(w, nil)
 }
 
 func (c UserController) SignUp(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	u := models.User{}
-	err := json.NewDecoder(r.Body).Decode(&u)
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+	confirmPassword := r.FormValue("confirmPassword")
+
+	if password != confirmPassword {
+		http.Error(w, "Passwords do not match", http.StatusBadRequest)
 		return
 	}
 
-	user, token, err := c.s.SignUp(u.Username, u.Password)
+	user, err := c.s.SignUp(username, password)
 	if err != nil {
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(map[string]interface{}{"user": user, "token": token})
+	c.t.RenderHomepage().Execute(w, user)
 }

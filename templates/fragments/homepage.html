@@ -3,18 +3,30 @@
 <section class="container">
     <div class="columns">
         <div class="column is-12">
-            <h1 class="title is-1">Hello {{.username}}</h1>
+            <h1 class="title is-1">Hello, <span id="username">{{.Username}}</span></h1>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="columns">
+        <div class="column is-12">
+            <div hx-get="/oauth/v1/list" hx-trigger="load" hx-swap="innerHTML"></div>
         </div>
     </div>
 </section>
 
 <script>
-    document.addEventListener("htmx:afterRequest", function (event) {
+    document.addEventListener('htmx:afterRequest', function (event) {
         if (event.detail.pathInfo.requestPath === "/oauth/v1/signIn") {
-            const token = "{{.token}}"
-            if (token) {
-                sessionStorage.setItem("token", token);
+            const user = "{{.Username}}"
+            if (user) {
+                sessionStorage.setItem("user", user);
             }
         }
-    })
+    });
+
+    if (sessionStorage.getItem("user")) {
+        document.getElementById("username").innerText = sessionStorage.getItem("user");
+    }
 </script>

@@ -27,3 +27,11 @@ func (s TemplateService) RenderSignIn() *template.Template {
 func (s TemplateService) RenderSignUp() *template.Template {
 	return template.Must(template.ParseFiles("templates/fragments/sign-up.html"))
 }
+
+func (s TemplateService) RenderNotification() *template.Template {
+	return template.Must(template.ParseFiles("templates/fragments/notification.html"))
+}
+
+func (s TemplateService) RenderEmptyDiv() *template.Template {
+	return template.Must(template.New("emptyDiv").Parse("<div></div>"))
+}

@@ -1,0 +1,5 @@
+<div class="notification is-primary">
+    {{.Message}}
+    <button class="delete" hx-delete="{{.Delete}}" hx-swap="outerHTML" hx-trigger="click"
+        hx-target="closest .notification"></button>
+</div>

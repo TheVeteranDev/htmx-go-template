@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/theveterandev/htmx-go-template/database"
-	"github.com/theveterandev/htmx-go-template/jwt"
 	"github.com/theveterandev/htmx-go-template/models"
 	utils "github.com/theveterandev/htmx-go-template/utilities"
 )
@@ -75,44 +74,34 @@ func (s UserService) DeleteUser(id int64) error {
 	return err
 }
 
-func (s UserService) SignIn(username string, password string) (models.User, map[string]string, error) {
+func (s UserService) SignIn(username string, password string) (models.User, error) {
 	u, err := s.getUserByUsername(username)
 	if err != nil {
-		return u, nil, err
+		return u, err
 	}
 
 	err = utils.CompareHash(u.Password, password)
 	if err != nil {
-		return u, nil, err
-	}
-
-	token, err := jwt.GenerateToken(u.Username)
-	if err != nil {
-		return u, nil, err
+		return u, err
 	}
 
 	u.Password = "**********"
 
-	return u, map[string]string{"token": token}, nil
+	return u, nil
 }
 
 func (s UserService) SignOut() bool {
 	return true
 }
 
-func (s UserService) SignUp(username string, password string) (models.User, map[string]string, error) {
+func (s UserService) SignUp(username string, password string) (models.User, error) {
 	u := models.User{Username: username, Password: password}
 	createdUser, err := s.CreateUser(u)
 	if err != nil {
-		return u, nil, err
-	}
-
-	token, err := jwt.GenerateToken(createdUser.Username)
-	if err != nil {
-		return u, nil, err
+		return u, err
 	}
 
 	createdUser.Password = "**********"
 
-	return createdUser, map[string]string{"token": token}, nil
+	return createdUser, nil
 }

@@ -10,8 +10,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const token = sessionStorage.getItem('token');
-            htmx.ajax("GET", token ? "/homepage" : "/sign-in", {
+            const user = sessionStorage.getItem("user");
+            htmx.ajax("GET", user ? "/homepage" : "/sign-in", {
                 target: "#body",
                 swap: "innerHTML",
             })

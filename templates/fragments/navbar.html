@@ -22,21 +22,20 @@
         <div class="navbar-end">
             <div class="navbar-item">
                 <div class="buttons">
-                    <button class="button is-primary" onclick="signOut()">
+                    <button class="button is-primary" hx-post="/oauth/v1/signOut" hx-trigger="click" hx-swap="innerHTML"
+                        hx-target="#body">
                         <strong>Sign Out</strong>
                     </button>
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        let signOut = () => {
-            sessionStorage.removeItem("token");
-            htmx.ajax("GET", "/sign-in", {
-                target: "#body",
-                swap: "innerHTML",
-            });
-        }
-    </script>
 </nav>
+
+<script>
+    document.addEventListener('htmx:afterRequest', function (event) {
+        if (event.detail.pathInfo.requestPath === "/oauth/v1/signOut") {
+            sessionStorage.removeItem("user");
+        }
+    });
+</script>

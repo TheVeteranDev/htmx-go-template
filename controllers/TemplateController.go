@@ -19,6 +19,7 @@ func InitTemplateController() routes.Routes {
 	r[routes.Route{Path: "/homepage", Method: "GET", Auth: false}] = tc.RenderHomepage
 	r[routes.Route{Path: "/sign-in", Method: "GET", Auth: false}] = tc.RenderSignIn
 	r[routes.Route{Path: "/sign-up", Method: "GET", Auth: false}] = tc.RenderSignUp
+	r[routes.Route{Path: "/notification", Method: "GET", Auth: false}] = tc.RenderNotification
 	return r
 }
 
@@ -40,4 +41,8 @@ func (c TemplateController) RenderSignIn(w http.ResponseWriter, r *http.Request)
 
 func (c TemplateController) RenderSignUp(w http.ResponseWriter, r *http.Request) {
 	c.s.RenderSignUp().Execute(w, nil)
+}
+
+func (c TemplateController) RenderNotification(w http.ResponseWriter, r *http.Request) {
+	c.s.RenderNotification().Execute(w, nil)
 }

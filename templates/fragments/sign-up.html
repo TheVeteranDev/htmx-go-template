@@ -4,7 +4,7 @@
             <div class="box">
                 <h1 class="title is-1" style="text-align: center;">Sign Up</h1>
 
-                <form action="/oauth/v1/signIn" method="POST">
+                <form hx-post="/oauth/v1/signUp" hx-trigger="submit" hx-target="#body" hx-swap="innerHTML">
                     <div class="field">
                         <label class="label">Username</label>
                         <div class="control">
